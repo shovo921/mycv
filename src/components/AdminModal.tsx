@@ -31,7 +31,8 @@ import {
   Certification, 
   GalleryPhoto, 
   PortfolioCustomData,
-  ReferenceContact
+  ReferenceContact,
+  UploadedCV
 } from '../types';
 import { PERSONAL_INFO, PROJECTS, CERTIFICATIONS, REFERENCES } from '../data/portfolioData';
 
@@ -80,9 +81,29 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   const handleUpdateGallery = onUpdatePhotos || onUpdateGallery || (() => {});
   const handleResetToDefaults = onResetAllData || onResetToDefaults || (() => {});
 
-  const [activeTab, setActiveTab] = useState<'certificates' | 'projects' | 'images' | 'profile' | 'backup'>('certificates');
+  const [activeTab, setActiveTab] = useState<'certificates' | 'projects' | 'images' | 'cv' | 'profile' | 'backup'>('certificates');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true); // Default to unlocked for smooth user workflow
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // --- Curriculum Vitae & Document Hub State ---
+  const [uploadedCv, setUploadedCv] = useState<UploadedCV | null>(null);
+  const [isDraggingCv, setIsDraggingCv] = useState(false);
+  const [cvUploadStatus, setCvUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [cvStatusMessage, setCvStatusMessage] = useState('');
+  const [cvPreviewOpen, setCvPreviewOpen] = useState(false);
+  const cvFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load existing CV from localStorage
+  React.useEffect(() => {
+    try {
+      const savedCv = localStorage.getItem('portfolio_custom_cv');
+      if (savedCv) {
+        setUploadedCv(JSON.parse(savedCv));
+      }
+    } catch (err) {
+      console.error('Error loading custom CV in admin:', err);
+    }
+  }, []);
 
   // --- Certificate Form State ---
   const [editingCertId, setEditingCertId] = useState<string | null>(null);
@@ -419,6 +440,94 @@ export const AdminModal: React.FC<AdminModalProps> = ({
     showNotification('Image removed from gallery.');
   };
 
+  // ----------------- CV & DOCUMENT HUB HANDLERS -----------------
+  const handleCvFileProcess = (file: File) => {
+    const validExtensions = ['pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg'];
+    const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
+
+    if (!validExtensions.includes(fileExtension)) {
+      setCvUploadStatus('error');
+      setCvStatusMessage('Please upload a valid document: PDF, DOC, DOCX, PNG, or JPG.');
+      return;
+    }
+
+    if (file.size > 12 * 1024 * 1024) {
+      setCvUploadStatus('error');
+      setCvStatusMessage('File size exceeds 12MB limit. Please upload a smaller file.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const resultData = event.target?.result as string;
+
+      const newCvRecord: UploadedCV = {
+        id: `cv-${Date.now()}`,
+        name: file.name,
+        size: file.size,
+        type: file.type || fileExtension,
+        uploadDate: new Date().toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        dataUrl: resultData
+      };
+
+      setUploadedCv(newCvRecord);
+      setCvUploadStatus('success');
+      setCvStatusMessage(`Successfully uploaded "${file.name}"!`);
+      try {
+        localStorage.setItem('portfolio_custom_cv', JSON.stringify(newCvRecord));
+      } catch (err) {
+        console.warn('Could not persist to localStorage:', err);
+      }
+      showNotification(`CV "${file.name}" uploaded and saved successfully!`);
+    };
+
+    reader.onerror = () => {
+      setCvUploadStatus('error');
+      setCvStatusMessage('Failed to read file. Please try again.');
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const handleCvDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingCv(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleCvFileProcess(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleCvRemove = () => {
+    setUploadedCv(null);
+    try {
+      localStorage.removeItem('portfolio_custom_cv');
+    } catch (e) {
+      console.error(e);
+    }
+    setCvUploadStatus('idle');
+    setCvStatusMessage('');
+    if (cvFileInputRef.current) {
+      cvFileInputRef.current.value = '';
+    }
+    showNotification('CV removed from system.');
+  };
+
+  const handleCvDownload = () => {
+    if (!uploadedCv?.dataUrl) return;
+    const a = document.createElement('a');
+    a.href = uploadedCv.dataUrl;
+    a.download = uploadedCv.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   // ----------------- PERSONAL INFO HANDLER -----------------
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -687,6 +796,18 @@ export const AdminModal: React.FC<AdminModalProps> = ({
             >
               <ImageIcon className="w-4 h-4" />
               <span>Photos & Gallery ({galleryPhotos.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('cv')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all ${
+                activeTab === 'cv'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
+                  : darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              <span>Curriculum Vitae & Document Hub</span>
             </button>
 
             <button
@@ -1476,6 +1597,287 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* TAB: CURRICULUM VITAE & DOCUMENT HUB */}
+          {/* ======================================================== */}
+          {activeTab === 'cv' && (
+            <div className="space-y-6 max-w-5xl mx-auto">
+              <div className="space-y-1.5">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/50">
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>ADMIN CV & RESUME MANAGEMENT</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                  <FileText className="w-6 h-6 text-cyan-400" />
+                  <span>Curriculum Vitae & Document Hub</span>
+                </h3>
+                <p className={`text-xs sm:text-sm ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                  Upload your latest custom CV file for instant in-browser inspection, or view and export my verified ATS-ready developer resume.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Left Column: Upload Box */}
+                <div className="lg:col-span-7 space-y-5">
+                  <div className={`p-6 sm:p-8 rounded-2xl border ${
+                    darkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+                  }`}>
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-base font-bold flex items-center gap-2">
+                        <span>Upload Custom CV / Resume</span>
+                      </h4>
+                      <span className="text-xs font-mono text-cyan-400 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-800/40">
+                        PDF, DOCX, PNG, JPG (Max 12MB)
+                      </span>
+                    </div>
+
+                    {/* Drag and Drop Zone */}
+                    <div
+                      onDragOver={(e) => { e.preventDefault(); setIsDraggingCv(true); }}
+                      onDragLeave={(e) => { e.preventDefault(); setIsDraggingCv(false); }}
+                      onDrop={handleCvDrop}
+                      onClick={() => cvFileInputRef.current?.click()}
+                      className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
+                        isDraggingCv
+                          ? 'border-cyan-400 bg-cyan-500/10 scale-[1.01]'
+                          : darkMode
+                          ? 'border-slate-800 hover:border-cyan-500/50 hover:bg-slate-900/50'
+                          : 'border-slate-300 hover:border-cyan-500/50 hover:bg-slate-50'
+                      }`}
+                    >
+                      <input
+                        type="file"
+                        ref={cvFileInputRef}
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            handleCvFileProcess(e.target.files[0]);
+                          }
+                        }}
+                        accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                        className="hidden"
+                      />
+
+                      <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mx-auto mb-3 shadow-inner">
+                        <Upload className="w-7 h-7 animate-pulse" />
+                      </div>
+
+                      <p className="text-sm font-semibold mb-1">
+                        Drag and drop your CV here, or <span className="text-cyan-400 underline">browse computer</span>
+                      </p>
+                      <p className={`text-xs ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                        Supports PDF documents, Word files, and high-resolution scanned transcripts
+                      </p>
+                    </div>
+
+                    {/* Status Message Alert */}
+                    {cvStatusMessage && (
+                      <div className={`mt-4 p-3 rounded-xl text-xs flex items-center gap-2 border ${
+                        cvUploadStatus === 'success'
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                          : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                      }`}>
+                        {cvUploadStatus === 'success' ? (
+                          <Check className="w-4 h-4 shrink-0" />
+                        ) : (
+                          <AlertCircle className="w-4 h-4 shrink-0" />
+                        )}
+                        <span>{cvStatusMessage}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Active Uploaded Document Card */}
+                  {uploadedCv && (
+                    <div className={`p-6 rounded-2xl border ${
+                      darkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+                    }`}>
+                      <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                            <FileText className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h5 className="text-xs font-bold font-mono text-emerald-400">
+                              Active Uploaded Document
+                            </h5>
+                            <p className="text-[11px] text-slate-400">
+                              Persisted for recruiter inspection
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                          Saved in Storage
+                        </span>
+                      </div>
+
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">File Name:</span>
+                          <span className="font-semibold text-slate-200 font-mono truncate max-w-[200px]">
+                            {uploadedCv.name}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">File Size:</span>
+                          <span className="font-mono text-slate-300">
+                            {(uploadedCv.size / 1024 / 1024).toFixed(2)} MB
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Uploaded Date:</span>
+                          <span className="text-slate-300 font-mono">{uploadedCv.uploadDate}</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-4 flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setCvPreviewOpen(true)}
+                          className="flex-1 py-2 px-3 rounded-xl text-xs font-semibold bg-cyan-600 hover:bg-cyan-500 text-white flex items-center justify-center gap-1.5 shadow-sm transition-all"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View & Inspect</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleCvDownload}
+                          className={`py-2 px-3 rounded-xl text-xs font-semibold border flex items-center justify-center gap-1.5 transition-all ${
+                            darkMode
+                              ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                              : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                          }`}
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Download</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleCvRemove}
+                          className="py-2 px-3 rounded-xl text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center gap-1.5 transition-all"
+                          title="Remove CV"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Remove</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Column: Verified ATS Resume Spec */}
+                <div className="lg:col-span-5 space-y-4">
+                  <div className={`p-6 rounded-2xl border ${
+                    darkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+                  }`}>
+                    <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm mb-3">
+                      <ShieldCheck className="w-4 h-4" />
+                      <span>Verified ATS Developer Profile</span>
+                    </div>
+
+                    <div className="space-y-3 text-xs leading-relaxed text-slate-400">
+                      <p>
+                        Current production role: <strong className="text-white">Officer (Software Development)</strong> at <strong className="text-cyan-300">Padma Bank PLC</strong> (03-09-2023 to Continue • 3.1 Years).
+                      </p>
+                      <p>
+                        Prior experience: <strong className="text-white">Software Developer</strong> at <strong className="text-cyan-300">Kaicom Solutions Japan</strong> (4.1 Years).
+                      </p>
+                      <p>
+                        Education: <strong className="text-white">M.Sc. in CSE</strong> from <strong className="text-indigo-300">Jahangirnagar University</strong> (CGPA 3.45).
+                      </p>
+                      <p>
+                        Certifications: Certified DevOps Engineer (CDE), AML & CFT Banking Certification.
+                      </p>
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-800 mt-4">
+                      <a
+                        href="/cv.pdf"
+                        download="Shuv_Chandra_Das_CV.pdf"
+                        className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white flex items-center justify-center gap-2 shadow-md shadow-cyan-500/20"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Download Default ATS Resume</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* In-Browser Document Inspection Modal */}
+              {cvPreviewOpen && uploadedCv && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                  <div className={`w-full max-w-4xl rounded-2xl border p-5 flex flex-col max-h-[90vh] ${
+                    darkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
+                  }`}>
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-cyan-400" />
+                        <h4 className="font-bold text-sm font-mono truncate max-w-md">
+                          {uploadedCv.name}
+                        </h4>
+                      </div>
+                      <button
+                        onClick={() => setCvPreviewOpen(false)}
+                        className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    <div className="flex-1 overflow-auto my-4 rounded-xl bg-slate-950 p-2 flex items-center justify-center min-h-[400px]">
+                      {uploadedCv.dataUrl?.startsWith('data:image/') ? (
+                        <img
+                          src={uploadedCv.dataUrl}
+                          alt="Uploaded CV"
+                          className="max-h-[70vh] object-contain rounded-lg"
+                        />
+                      ) : uploadedCv.dataUrl?.startsWith('data:application/pdf') ? (
+                        <iframe
+                          src={uploadedCv.dataUrl}
+                          title="CV PDF Inspection"
+                          className="w-full h-[70vh] rounded-lg border-0"
+                        />
+                      ) : (
+                        <div className="text-center p-8 space-y-3">
+                          <FileText className="w-12 h-12 text-cyan-400 mx-auto" />
+                          <p className="text-sm font-mono">{uploadedCv.name}</p>
+                          <p className="text-xs text-slate-400">
+                            In-browser preview is best supported for PDF and Image documents.
+                          </p>
+                          <button
+                            onClick={handleCvDownload}
+                            className="px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-500 text-slate-950 inline-flex items-center gap-2"
+                          >
+                            <Download className="w-4 h-4" />
+                            <span>Download to View</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                      <button
+                        onClick={() => setCvPreviewOpen(false)}
+                        className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-700 hover:bg-slate-800"
+                      >
+                        Close Preview
+                      </button>
+                      <button
+                        onClick={handleCvDownload}
+                        className="px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-500 hover:bg-cyan-400 text-slate-950 flex items-center gap-1.5"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Download File</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

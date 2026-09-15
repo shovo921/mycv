@@ -6,7 +6,6 @@ import { SkillsSection } from '../components/SkillsSection';
 import { ResumeSection } from '../components/ResumeSection';
 import { ProjectsSection } from '../components/ProjectsSection';
 import { GallerySection } from '../components/GallerySection';
-import { CvUploadSection } from '../components/CvUploadSection';
 import { BlogSection } from '../components/BlogSection';
 import { ContactSection } from '../components/ContactSection';
 import { Footer } from '../components/Footer';
@@ -16,6 +15,7 @@ import { ArticleModal } from '../components/ArticleModal';
 import { NewArticleModal } from '../components/NewArticleModal';
 import { CredentialModal } from '../components/CredentialModal';
 import { DigitalCvModal } from '../components/DigitalCvModal';
+import { WhatsAppButton } from '../components/WhatsAppButton';
 
 import { Project, BlogPost, Certification, GalleryPhoto } from '../types';
 
@@ -106,12 +106,6 @@ export const HomePage: React.FC<HomePageProps> = ({
         {/* Media & Professional Gallery Section */}
         <GallerySection darkMode={darkMode} photos={photos} />
 
-        {/* CV Upload & Document Management Hub */}
-        <CvUploadSection
-          darkMode={darkMode}
-          onOpenDigitalCv={() => setIsDigitalCvModalOpen(true)}
-        />
-
         {/* Technical Blog Insights Section */}
         <BlogSection
           darkMode={darkMode}
@@ -166,6 +160,9 @@ export const HomePage: React.FC<HomePageProps> = ({
         onClose={() => setIsDigitalCvModalOpen(false)}
         darkMode={darkMode}
       />
+
+      {/* Floating WhatsApp Contact Button on Right Side */}
+      <WhatsAppButton phoneNumber="01303802470" />
     </div>
   );
 };

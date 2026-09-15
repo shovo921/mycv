@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArrowUp, Terminal, Heart, Github, Linkedin, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowUp, Terminal, Heart, Github, Linkedin, ExternalLink, Lock } from 'lucide-react';
 import { PERSONAL_INFO } from '../data/portfolioData';
 import { PortioLogo } from './PortioLogo';
 
@@ -25,8 +26,17 @@ export const Footer: React.FC<FooterProps> = ({ darkMode }) => {
           {/* Copyright */}
           <div className="text-center text-xs font-mono">
             <p>© {new Date().getFullYear()} Shuv Chandra Das. All rights reserved.</p>
-            <p className="text-slate-500 mt-1">
-              Portio • Personal Portfolio of Shuv Chandra Das
+            <p className="text-slate-500 mt-1 flex items-center justify-center gap-1.5">
+              <span>shovo portfolio • Personal Portfolio of Shuv Chandra Das</span>
+              <span className="text-slate-700">•</span>
+              <Link
+                to="/admin-portal"
+                className="text-slate-500 hover:text-cyan-400 transition-colors inline-flex items-center gap-1 opacity-60 hover:opacity-100"
+                title="Admin Management Portal"
+              >
+                <Lock className="w-3 h-3" />
+                <span>Admin</span>
+              </Link>
             </p>
           </div>
 

@@ -36,7 +36,7 @@ export const PortioLogo: React.FC<PortioLogoProps> = ({
           {/* Subtle tech background grid pattern */}
           <div className="absolute inset-0 bg-[radial-gradient(#06b6d4_1px,transparent_1px)] [background-size:6px_6px] opacity-25" />
           
-          {/* Stylized 'Portio' Monogram / Code Emblem */}
+          {/* Stylized 'S' Monogram / Code Emblem */}
           <svg
             className="w-5 h-5 text-cyan-400 group-hover:text-cyan-300 transition-colors z-10"
             viewBox="0 0 24 24"
@@ -46,10 +46,9 @@ export const PortioLogo: React.FC<PortioLogoProps> = ({
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            {/* Geometric stylized 'P' fused with code brackets */}
-            <path d="M7 20V4h6.5a4.5 4.5 0 0 1 0 9H7" />
-            <path d="M14 13l4 7" stroke="#38bdf8" strokeWidth="2.5" />
-            <circle cx="17" cy="7" r="1.5" fill="#38bdf8" stroke="none" />
+            {/* Geometric stylized 'S' with tech terminal brackets */}
+            <path d="M17 6.5A4.5 4.5 0 0 0 8 8c0 3 8 3 8 6a4.5 4.5 0 0 1-9 1.5" />
+            <circle cx="18" cy="18" r="1.5" fill="#38bdf8" stroke="none" />
           </svg>
           
           {/* Corner accent glow */}
@@ -57,15 +56,16 @@ export const PortioLogo: React.FC<PortioLogoProps> = ({
         </div>
       </div>
 
-      {/* Brand Text: Portio */}
+      {/* Brand Text: shovo portfolio */}
       <div className="flex flex-col">
-        <div className="flex items-baseline gap-1">
+        <div className="flex items-baseline gap-1.5">
           <span
             className={`font-black font-mono tracking-tight ${titleSizes[size]} ${
               darkMode ? 'text-white' : 'text-slate-900'
             }`}
           >
-            Portio
+            <span className="text-cyan-400">shovo</span>{' '}
+            <span className={darkMode ? 'text-white' : 'text-slate-900'}>portfolio</span>
             <span className="text-cyan-500 font-extrabold">.</span>
           </span>
           {isLg && (
