@@ -1,35 +1,72 @@
 import React, { useState, useEffect } from 'react';
-import { Navbar } from './components/Navbar';
-import { Hero } from './components/Hero';
-import { AboutSection } from './components/AboutSection';
-import { SkillsSection } from './components/SkillsSection';
-import { ResumeSection } from './components/ResumeSection';
-import { ProjectsSection } from './components/ProjectsSection';
-import { GallerySection } from './components/GallerySection';
-import { CvUploadSection } from './components/CvUploadSection';
-import { BlogSection } from './components/BlogSection';
-import { ContactSection } from './components/ContactSection';
-import { Footer } from './components/Footer';
-
-import { ProjectModal } from './components/ProjectModal';
-import { ArticleModal } from './components/ArticleModal';
-import { NewArticleModal } from './components/NewArticleModal';
-import { CredentialModal } from './components/CredentialModal';
-import { DigitalCvModal } from './components/DigitalCvModal';
-import { AdminModal } from './components/AdminModal';
-
+import { BrowserRouter, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import { HomePage } from './pages/HomePage';
+import { AdminPage } from './pages/AdminPage';
 import { BLOG_POSTS, PROJECTS, CERTIFICATIONS, GALLERY_PHOTOS } from './data/portfolioData';
 import { Project, BlogPost, Certification, GalleryPhoto } from './types';
 
+interface AdminRouteWrapperProps {
+  darkMode: boolean;
+  setDarkMode: (val: boolean) => void;
+  projects: Project[];
+  certifications: Certification[];
+  photos: GalleryPhoto[];
+  onUpdateProjects: (newProjects: Project[]) => void;
+  onUpdateCertifications: (newCerts: Certification[]) => void;
+  onUpdatePhotos: (newPhotos: GalleryPhoto[]) => void;
+  onResetAllData: () => void;
+}
+
+const AdminRouteWrapper: React.FC<AdminRouteWrapperProps> = ({
+  darkMode,
+  setDarkMode,
+  projects,
+  certifications,
+  photos,
+  onUpdateProjects,
+  onUpdateCertifications,
+  onUpdatePhotos,
+  onResetAllData,
+}) => {
+  const navigate = useNavigate();
+
+  return (
+    <AdminPage
+      darkMode={darkMode}
+      setDarkMode={setDarkMode}
+      projects={projects}
+      certifications={certifications}
+      photos={photos}
+      onUpdateProjects={onUpdateProjects}
+      onUpdateCertifications={onUpdateCertifications}
+      onUpdatePhotos={onUpdatePhotos}
+      onResetAllData={onResetAllData}
+      onNavigateHome={() => navigate('/')}
+    />
+  );
+};
+
+// Component to handle hash navigation support (e.g. #admin or #/admin)
+const HashNavHandler: React.FC = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkHash = () => {
+      if (window.location.hash === '#admin' || window.location.hash === '#/admin') {
+        navigate('/admin');
+      }
+    };
+
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    return () => window.removeEventListener('hashchange', checkHash);
+  }, [navigate]);
+
+  return null;
+};
+
 export function App() {
   const [darkMode, setDarkMode] = useState<boolean>(true);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [selectedArticle, setSelectedArticle] = useState<BlogPost | null>(null);
-  const [isNewArticleModalOpen, setIsNewArticleModalOpen] = useState<boolean>(false);
-  const [isCredentialModalOpen, setIsCredentialModalOpen] = useState<boolean>(false);
-  const [credentialDocId, setCredentialDocId] = useState<string | undefined>(undefined);
-  const [isDigitalCvModalOpen, setIsDigitalCvModalOpen] = useState<boolean>(false);
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
 
   // Managed data collections
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(BLOG_POSTS);
@@ -126,148 +163,45 @@ export function App() {
     } catch (e) {
       console.error(e);
     }
-    // Automatically open newly drafted article
-    setSelectedArticle(newPost);
-  };
-
-  const handleOpenCredentials = (docId?: string) => {
-    setCredentialDocId(docId);
-    setIsCredentialModalOpen(true);
-  };
-
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${
-      darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
-    }`}>
-      {/* Top Sticky Header */}
-      <Navbar
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-        onOpenCvModal={() => setIsDigitalCvModalOpen(true)}
-        onOpenAdminModal={() => setIsAdminModalOpen(true)}
-      />
-
-      {/* Main Page Sections */}
-      <main id="main-content">
-        {/* Hero Section */}
-        <Hero
-          darkMode={darkMode}
-          onOpenCvModal={() => setIsDigitalCvModalOpen(true)}
-          onScrollToSection={scrollToSection}
+    <BrowserRouter>
+      <HashNavHandler />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <HomePage
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
+              projects={projects}
+              certifications={certifications}
+              photos={photos}
+              blogPosts={blogPosts}
+              onAddArticle={handleAddArticle}
+            />
+          }
         />
-
-        {/* About & Engineering Mindset */}
-        <AboutSection
-          darkMode={darkMode}
-          onOpenCredentialModal={() => handleOpenCredentials()}
+        <Route
+          path="/admin"
+          element={
+            <AdminRouteWrapper
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
+              projects={projects}
+              certifications={certifications}
+              photos={photos}
+              onUpdateProjects={handleUpdateProjects}
+              onUpdateCertifications={handleUpdateCertifications}
+              onUpdatePhotos={handleUpdatePhotos}
+              onResetAllData={handleResetAllData}
+            />
+          }
         />
-
-        {/* Skills & Tooling Grid */}
-        <SkillsSection darkMode={darkMode} />
-
-        {/* Experience, Education & Certifications Timeline */}
-        <ResumeSection
-          darkMode={darkMode}
-          certifications={certifications}
-          onOpenCredentialModal={handleOpenCredentials}
-          onOpenCvModal={() => setIsDigitalCvModalOpen(true)}
-          onOpenAdminModal={() => setIsAdminModalOpen(true)}
-        />
-
-        {/* Featured Projects with Architecture Modal */}
-        <ProjectsSection
-          darkMode={darkMode}
-          projects={projects}
-          onSelectProject={(project) => setSelectedProject(project)}
-          onOpenAdminModal={() => setIsAdminModalOpen(true)}
-        />
-
-        {/* Media & Professional Gallery Section */}
-        <GallerySection
-          darkMode={darkMode}
-          photos={photos}
-          onOpenAdminModal={() => setIsAdminModalOpen(true)}
-        />
-
-        {/* CV Upload & Document Management Hub */}
-        <CvUploadSection
-          darkMode={darkMode}
-          onOpenDigitalCv={() => setIsDigitalCvModalOpen(true)}
-        />
-
-        {/* Technical Blog Insights Section */}
-        <BlogSection
-          darkMode={darkMode}
-          blogPosts={blogPosts}
-          onSelectArticle={(article) => setSelectedArticle(article)}
-          onOpenNewArticleModal={() => setIsNewArticleModalOpen(true)}
-        />
-
-        {/* Contact Information & Inquiry Form */}
-        <ContactSection darkMode={darkMode} />
-      </main>
-
-      {/* Footer */}
-      <Footer darkMode={darkMode} />
-
-      {/* Interactive Modals */}
-      <ProjectModal
-        project={selectedProject}
-        darkMode={darkMode}
-        onClose={() => setSelectedProject(null)}
-      />
-
-      <ArticleModal
-        article={selectedArticle}
-        darkMode={darkMode}
-        onClose={() => setSelectedArticle(null)}
-      />
-
-      <NewArticleModal
-        darkMode={darkMode}
-        isOpen={isNewArticleModalOpen}
-        onClose={() => setIsNewArticleModalOpen(false)}
-        onAddArticle={handleAddArticle}
-      />
-
-      <CredentialModal
-        isOpen={isCredentialModalOpen}
-        onClose={() => {
-          setIsCredentialModalOpen(false);
-          setCredentialDocId(undefined);
-        }}
-        darkMode={darkMode}
-        selectedDocId={credentialDocId}
-        customCertifications={certifications}
-      />
-
-      <DigitalCvModal
-        isOpen={isDigitalCvModalOpen}
-        onClose={() => setIsDigitalCvModalOpen(false)}
-        darkMode={darkMode}
-      />
-
-      {/* Admin Panel Modal for Uploading/Managing Certificates, Images, and Projects */}
-      <AdminModal
-        isOpen={isAdminModalOpen}
-        onClose={() => setIsAdminModalOpen(false)}
-        darkMode={darkMode}
-        projects={projects}
-        certifications={certifications}
-        photos={photos}
-        onUpdateProjects={handleUpdateProjects}
-        onUpdateCertifications={handleUpdateCertifications}
-        onUpdatePhotos={handleUpdatePhotos}
-        onResetAllData={handleResetAllData}
-      />
-    </div>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

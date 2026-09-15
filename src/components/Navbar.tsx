@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Sun, Moon, Download, ExternalLink, Terminal, Shield, Lock } from 'lucide-react';
+import { Menu, X, Sun, Moon, Download, ExternalLink, Terminal, Shield } from 'lucide-react';
 import { PERSONAL_INFO } from '../data/portfolioData';
 import { PortioLogo } from './PortioLogo';
 
@@ -7,14 +7,12 @@ interface NavbarProps {
   darkMode: boolean;
   setDarkMode: (val: boolean) => void;
   onOpenCvModal: () => void;
-  onOpenAdminModal: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
   darkMode, 
   setDarkMode, 
-  onOpenCvModal,
-  onOpenAdminModal
+  onOpenCvModal
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -127,21 +125,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
 
-            {/* Admin Portal Button */}
-            <button
-              id="header-admin-portal-btn"
-              onClick={onOpenAdminModal}
-              title="Admin Panel: Upload Certificates, Projects, Images"
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold tracking-wider transition-all border ${
-                darkMode
-                  ? 'bg-cyan-950/40 text-cyan-400 border-cyan-800/60 hover:bg-cyan-900/50'
-                  : 'bg-cyan-50 text-cyan-700 border-cyan-200 hover:bg-cyan-100'
-              }`}
-            >
-              <Lock className="w-3.5 h-3.5" />
-              <span>Admin</span>
-            </button>
-
             <button
               id="header-view-cv-btn"
               onClick={onOpenCvModal}
@@ -230,20 +213,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <div className="pt-4 border-t border-slate-800/60 flex flex-col gap-2.5">
-            <button
-              onClick={() => {
-                setIsOpen(false);
-                onOpenAdminModal();
-              }}
-              className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium border ${
-                darkMode
-                  ? 'bg-cyan-950/40 text-cyan-400 border-cyan-800/60'
-                  : 'bg-cyan-50 text-cyan-800 border-cyan-200'
-              }`}
-            >
-              <Lock className="w-4 h-4 text-cyan-400" />
-              <span>Admin Panel (Upload Certificates & Projects)</span>
-            </button>
             <button
               onClick={() => {
                 setIsOpen(false);

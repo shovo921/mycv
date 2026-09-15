@@ -19,15 +19,13 @@ interface ResumeSectionProps {
   onOpenCredentialModal: (docType?: string) => void;
   onOpenCvModal: () => void;
   certifications?: Certification[];
-  onOpenAdminModal?: () => void;
 }
 
 export const ResumeSection: React.FC<ResumeSectionProps> = ({ 
   darkMode, 
   onOpenCredentialModal,
   onOpenCvModal,
-  certifications = CERTIFICATIONS,
-  onOpenAdminModal
+  certifications = CERTIFICATIONS
 }) => {
   const [activeTab, setActiveTab] = useState<'experience' | 'education' | 'certifications'>('experience');
 
@@ -285,18 +283,6 @@ export const ResumeSection: React.FC<ResumeSectionProps> = ({
         {/* Tab 3: Certifications */}
         {activeTab === 'certifications' && (
           <div className="space-y-6 max-w-4xl mx-auto">
-            {onOpenAdminModal && (
-              <div className="flex justify-end">
-                <button
-                  onClick={onOpenAdminModal}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 hover:bg-cyan-900/50 transition-colors shadow-sm"
-                >
-                  <Award className="w-4 h-4" />
-                  <span>+ Upload & Manage Professional Certificates</span>
-                </button>
-              </div>
-            )}
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {certifications.map((cert) => (
                 <div

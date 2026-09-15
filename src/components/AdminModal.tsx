@@ -21,7 +21,10 @@ import {
   Eye,
   Lock,
   Unlock,
-  Sparkles
+  Sparkles,
+  ArrowLeft,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { 
   Project, 
@@ -33,9 +36,12 @@ import {
 import { PERSONAL_INFO, PROJECTS, CERTIFICATIONS, REFERENCES } from '../data/portfolioData';
 
 interface AdminModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+  fullPage?: boolean;
+  onNavigateHome?: () => void;
   darkMode: boolean;
+  setDarkMode?: (val: boolean) => void;
   projects: Project[];
   certifications: Certification[];
   personalInfo?: typeof PERSONAL_INFO;
@@ -51,9 +57,12 @@ interface AdminModalProps {
 }
 
 export const AdminModal: React.FC<AdminModalProps> = ({
-  isOpen,
-  onClose,
+  isOpen = true,
+  onClose = () => {},
+  fullPage = false,
+  onNavigateHome,
   darkMode,
+  setDarkMode,
   projects,
   certifications,
   personalInfo = PERSONAL_INFO,
@@ -122,7 +131,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   const certFileInputRef = useRef<HTMLInputElement>(null);
   const projectImgInputRef = useRef<HTMLInputElement>(null);
 
-  if (!isOpen) return null;
+  if (!isOpen && !fullPage) return null;
 
   const showNotification = (msg: string) => {
     setSuccessMessage(msg);
@@ -474,45 +483,120 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className={
+      fullPage
+        ? `min-h-screen flex flex-col ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`
+        : "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+    }>
       <div
-        className={`relative w-full max-w-5xl h-[92vh] rounded-2xl border flex flex-col overflow-hidden shadow-2xl ${
-          darkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
-        }`}
+        className={
+          fullPage
+            ? "flex-1 flex flex-col w-full"
+            : `relative w-full max-w-5xl h-[92vh] rounded-2xl border flex flex-col overflow-hidden shadow-2xl ${
+                darkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
+              }`
+        }
       >
-        {/* Modal Top Header */}
-        <div className={`px-6 py-4 border-b flex items-center justify-between gap-4 ${
-          darkMode ? 'bg-slate-950/90 border-slate-800' : 'bg-slate-100/90 border-slate-200'
-        }`}>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
-              <Lock className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-bold font-mono tracking-tight">
-                  Portfolio Admin Management Portal
-                </h2>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                  Live Management
-                </span>
-              </div>
-              <p className="text-xs text-slate-400">
-                Upload & manage professional certificates, project records, images, and career data
-              </p>
-            </div>
-          </div>
+        {/* Header */}
+        {fullPage ? (
+          <header className={`sticky top-0 z-40 px-4 sm:px-8 py-3.5 border-b backdrop-blur-md flex items-center justify-between gap-4 ${
+            darkMode ? 'bg-slate-900/95 border-slate-800' : 'bg-white/95 border-slate-200 shadow-sm'
+          }`}>
+            <div className="flex items-center gap-3 sm:gap-4">
+              <button
+                onClick={onNavigateHome || onClose}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl border text-xs sm:text-sm font-semibold transition-all ${
+                  darkMode
+                    ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                }`}
+              >
+                <ArrowLeft className="w-4 h-4 text-cyan-400" />
+                <span>Back to Portfolio</span>
+              </button>
 
-          <button
-            onClick={onClose}
-            aria-label="Close modal"
-            className={`p-2 rounded-xl border transition-colors ${
-              darkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700' : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300'
-            }`}
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+              <div className="h-5 w-px bg-slate-700/60 hidden sm:block" />
+
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
+                  <Lock className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-sm sm:text-base font-bold font-mono tracking-tight">
+                      Portfolio Admin Management
+                    </h1>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                      /admin
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 hidden md:block">
+                    Dedicated control room for certificates, projects, media, and career data
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+              {setDarkMode && (
+                <button
+                  onClick={() => setDarkMode(!darkMode)}
+                  aria-label="Toggle theme"
+                  className={`p-2.5 rounded-xl border transition-colors ${
+                    darkMode
+                      ? 'bg-slate-800 border-slate-700 text-amber-400 hover:bg-slate-700'
+                      : 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                </button>
+              )}
+
+              <button
+                onClick={onNavigateHome || onClose}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-cyan-600 hover:bg-cyan-500 text-white shadow-sm transition-all"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">View Public Site</span>
+                <span className="sm:hidden">Exit</span>
+              </button>
+            </div>
+          </header>
+        ) : (
+          /* Modal Top Header */
+          <div className={`px-6 py-4 border-b flex items-center justify-between gap-4 ${
+            darkMode ? 'bg-slate-950/90 border-slate-800' : 'bg-slate-100/90 border-slate-200'
+          }`}>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
+                <Lock className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-bold font-mono tracking-tight">
+                    Portfolio Admin Management Portal
+                  </h2>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    Live Management
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Upload & manage professional certificates, project records, images, and career data
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={onClose}
+              aria-label="Close modal"
+              className={`p-2 rounded-xl border transition-colors ${
+                darkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700' : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300'
+              }`}
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        )}
 
         {/* Global Toast Notification */}
         {successMessage && (
@@ -522,73 +606,121 @@ export const AdminModal: React.FC<AdminModalProps> = ({
           </div>
         )}
 
+        {/* Full-Page Quick Metrics Bar */}
+        {fullPage && (
+          <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              <div className={`p-4 rounded-xl border ${
+                darkMode ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+              }`}>
+                <div className="text-xs text-slate-400 mb-1">Certificates</div>
+                <div className="text-2xl font-bold font-mono text-cyan-400">{certifications.length}</div>
+              </div>
+              <div className={`p-4 rounded-xl border ${
+                darkMode ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+              }`}>
+                <div className="text-xs text-slate-400 mb-1">Active Projects</div>
+                <div className="text-2xl font-bold font-mono text-blue-400">{projects.length}</div>
+              </div>
+              <div className={`p-4 rounded-xl border ${
+                darkMode ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+              }`}>
+                <div className="text-xs text-slate-400 mb-1">Gallery Media</div>
+                <div className="text-2xl font-bold font-mono text-emerald-400">{galleryPhotos.length}</div>
+              </div>
+              <div className={`p-4 rounded-xl border ${
+                darkMode ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+              }`}>
+                <div className="text-xs text-slate-400 mb-1">Storage Sync</div>
+                <div className="text-sm font-bold font-mono text-emerald-400 flex items-center gap-1 mt-1">
+                  <ShieldCheck className="w-4 h-4" /> Active (LocalStorage)
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Navigation Tabs */}
-        <div className={`px-6 pt-3 pb-2 border-b flex flex-wrap gap-2 text-xs sm:text-sm font-semibold ${
-          darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'
-        }`}>
-          <button
-            onClick={() => setActiveTab('certificates')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-              activeTab === 'certificates'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
-                : darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Award className="w-4 h-4" />
-            <span>Manage Certificates ({certifications.length})</span>
-          </button>
+        <div className={
+          fullPage
+            ? "max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 pb-2"
+            : `px-6 pt-3 pb-2 border-b flex flex-wrap gap-2 text-xs sm:text-sm font-semibold ${
+                darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'
+              }`
+        }>
+          <div className={`flex flex-wrap gap-2 text-xs sm:text-sm font-semibold ${
+            fullPage
+              ? `p-2 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`
+              : ''
+          }`}>
+            <button
+              onClick={() => setActiveTab('certificates')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all ${
+                activeTab === 'certificates'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
+                  : darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Award className="w-4 h-4" />
+              <span>Manage Certificates ({certifications.length})</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('projects')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-              activeTab === 'projects'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
-                : darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Briefcase className="w-4 h-4" />
-            <span>Manage Projects ({projects.length})</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('projects')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all ${
+                activeTab === 'projects'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
+                  : darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Briefcase className="w-4 h-4" />
+              <span>Manage Projects ({projects.length})</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('images')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-              activeTab === 'images'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
-                : darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <ImageIcon className="w-4 h-4" />
-            <span>Photos & Gallery ({galleryPhotos.length})</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('images')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all ${
+                activeTab === 'images'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
+                  : darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <ImageIcon className="w-4 h-4" />
+              <span>Photos & Gallery ({galleryPhotos.length})</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-              activeTab === 'profile'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
-                : darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <User className="w-4 h-4" />
-            <span>Personal & Career Info</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all ${
+                activeTab === 'profile'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
+                  : darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <User className="w-4 h-4" />
+              <span>Personal & Career Info</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('backup')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-              activeTab === 'backup'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
-                : darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Database className="w-4 h-4" />
-            <span>Backup & Sync</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('backup')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all ${
+                activeTab === 'backup'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
+                  : darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Database className="w-4 h-4" />
+              <span>Backup & Sync</span>
+            </button>
+          </div>
         </div>
 
         {/* Modal Content Scroll Area */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className={
+          fullPage
+            ? "flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6"
+            : "flex-1 overflow-y-auto p-6"
+        }>
           
           {/* ======================================================== */}
           {/* TAB 1: CERTIFICATES & CREDENTIALS */}
@@ -1575,22 +1707,28 @@ export const AdminModal: React.FC<AdminModalProps> = ({
 
         </div>
 
-        {/* Modal Bottom Footer */}
-        <div className={`px-6 py-3 border-t flex flex-wrap items-center justify-between gap-3 text-xs ${
-          darkMode ? 'bg-slate-950/80 border-slate-800 text-slate-400' : 'bg-slate-100 border-slate-200 text-slate-600'
-        }`}>
+        {/* Modal/Page Bottom Footer */}
+        <footer className={
+          fullPage
+            ? `px-6 py-4 border-t flex flex-wrap items-center justify-between gap-3 text-xs mt-auto ${
+                darkMode ? 'bg-slate-950 border-slate-800 text-slate-400' : 'bg-white border-slate-200 text-slate-600'
+              }`
+            : `px-6 py-3 border-t flex flex-wrap items-center justify-between gap-3 text-xs ${
+                darkMode ? 'bg-slate-950/80 border-slate-800 text-slate-400' : 'bg-slate-100 border-slate-200 text-slate-600'
+              }`
+        }>
           <div className="flex items-center gap-2 font-mono">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
             <span>Changes persist automatically in browser storage (localStorage)</span>
           </div>
 
           <button
-            onClick={onClose}
-            className="px-5 py-1.5 rounded-xl font-semibold bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-sm"
+            onClick={onNavigateHome || onClose}
+            className="px-5 py-2 rounded-xl font-semibold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-sm transition-all"
           >
-            Done & Return to Site
+            {fullPage ? '← Back to Public Portfolio' : 'Done & Return to Site'}
           </button>
-        </div>
+        </footer>
 
       </div>
     </div>

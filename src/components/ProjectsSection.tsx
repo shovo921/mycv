@@ -10,8 +10,7 @@ import {
   ShieldAlert,
   GitBranch,
   Cpu,
-  Globe,
-  Plus
+  Globe
 } from 'lucide-react';
 import { PROJECTS } from '../data/portfolioData';
 import { Project, ProjectCategory } from '../types';
@@ -20,14 +19,12 @@ interface ProjectsSectionProps {
   darkMode: boolean;
   onSelectProject: (project: Project) => void;
   projects?: Project[];
-  onOpenAdminModal?: () => void;
 }
 
 export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ 
   darkMode, 
   onSelectProject,
-  projects = PROJECTS,
-  onOpenAdminModal
+  projects = PROJECTS
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<ProjectCategory>('all');
 
@@ -96,16 +93,6 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
               </button>
             ))}
           </div>
-
-          {onOpenAdminModal && (
-            <button
-              onClick={onOpenAdminModal}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 hover:bg-cyan-900/50 transition-colors shrink-0"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add / Manage Projects</span>
-            </button>
-          )}
         </div>
 
         {/* Projects Grid */}

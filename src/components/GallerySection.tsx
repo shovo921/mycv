@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { 
   Camera, 
   Eye, 
-  Plus, 
   X, 
   ExternalLink, 
   Calendar, 
@@ -17,13 +16,11 @@ import { GalleryPhoto } from '../types';
 interface GallerySectionProps {
   darkMode: boolean;
   photos: GalleryPhoto[];
-  onOpenAdminModal: () => void;
 }
 
 export const GallerySection: React.FC<GallerySectionProps> = ({
   darkMode,
-  photos,
-  onOpenAdminModal
+  photos
 }) => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
@@ -65,17 +62,6 @@ export const GallerySection: React.FC<GallerySectionProps> = ({
             <p className={`text-base ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
               Visual documentation of engineering milestones, executive banking sessions, keynote tech summits, and certified credentials.
             </p>
-          </div>
-
-          {/* Admin Upload Trigger */}
-          <div className="shrink-0">
-            <button
-              onClick={onOpenAdminModal}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-md shadow-cyan-500/20 transition-all hover:-translate-y-0.5"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Upload Media in Admin</span>
-            </button>
           </div>
         </div>
 
@@ -157,12 +143,6 @@ export const GallerySection: React.FC<GallerySectionProps> = ({
           }`}>
             <Camera className="w-10 h-10 mx-auto mb-3 opacity-40 text-cyan-400" />
             <p className="text-sm font-medium">No media uploaded in this category yet.</p>
-            <button
-              onClick={onOpenAdminModal}
-              className="mt-4 px-4 py-2 rounded-xl text-xs font-semibold text-cyan-400 bg-cyan-950/50 border border-cyan-800/60 hover:bg-cyan-900/50"
-            >
-              Upload media in Admin Panel
-            </button>
           </div>
         )}
 
