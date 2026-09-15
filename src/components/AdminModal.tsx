@@ -1781,16 +1781,19 @@ export const AdminModal: React.FC<AdminModalProps> = ({
 
                     <div className="space-y-3 text-xs leading-relaxed text-slate-400">
                       <p>
-                        Current production role: <strong className="text-white">Officer (Software Development)</strong> at <strong className="text-cyan-300">Padma Bank PLC</strong> (03-09-2023 to Continue • 3.1 Years).
+                        Current production role: <strong className="text-white">Officer – Software Development</strong> at <strong className="text-cyan-300">Padma Bank PLC</strong> (03 September 2023 – Present).
                       </p>
                       <p>
-                        Prior experience: <strong className="text-white">Software Developer</strong> at <strong className="text-cyan-300">Kaicom Solutions Japan</strong> (4.1 Years).
+                        Prior experience: <strong className="text-white">Software Engineer – Software Development</strong> at <strong className="text-cyan-300">Kaicom Solutions Japan Co. Ltd.</strong> (01 August 2019 – 30 August 2023).
                       </p>
                       <p>
-                        Education: <strong className="text-white">M.Sc. in CSE</strong> from <strong className="text-indigo-300">Jahangirnagar University</strong> (CGPA 3.45).
+                        Core Stack: <strong className="text-cyan-300">PHP (Laravel), Oracle & MySQL, Docker, Jasper Reports, .NET Core, Python, Django CMS</strong>.
                       </p>
                       <p>
-                        Certifications: Certified DevOps Engineer (CDE), AML & CFT Banking Certification.
+                        Education: <strong className="text-white">M.Sc. CSE</strong> (Jahangirnagar University, CGPA 3.45) & <strong className="text-white">B.Sc. Engineering</strong> (IUBAT, CGPA 3.49).
+                      </p>
+                      <p>
+                        Certifications: Certified DevOps Engineer (Page Cloud Academy), Fundamentals of AML & CFT (Padma Bank PLC).
                       </p>
                     </div>
 

@@ -70,9 +70,21 @@ export const Hero: React.FC<HeroProps> = ({ darkMode, onOpenCvModal, onScrollToS
 
             {/* Tagline & Key Credentials */}
             <p className={`text-base sm:text-lg leading-relaxed max-w-2xl ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-              7.2+ years crafting high-resilience banking applications, internal enterprise HRIS portals, and automated container delivery pipelines.
-              Specialized in <span className="font-semibold text-cyan-400">PHP (Laravel)</span>, <span className="font-semibold text-blue-400">Oracle & MySQL</span>, <span className="font-semibold text-emerald-400">Docker</span>, and <span className="font-semibold text-amber-400">Jasper Reports</span>.
+              Software Engineer with over 7 years of experience in banking and enterprise applications.
+              Specialized in <span className="font-semibold text-cyan-400">PHP (Laravel)</span>, <span className="font-semibold text-blue-400">Oracle & MySQL</span>, <span className="font-semibold text-emerald-400">Docker</span>, and <span className="font-semibold text-amber-400">Jasper Reports</span>, and <span className="font-semibold text-purple-400">.NET Core</span>, <span className="font-semibold text-teal-400">Python</span>, <span className="font-semibold text-rose-400">Django CMS</span>.
             </p>
+
+            {/* Core Tech Stack Badges */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <span className="text-xs font-mono font-semibold text-slate-400 uppercase tracking-wider mr-1">Core Stack:</span>
+              <span className="px-2.5 py-1 rounded-md text-xs font-mono font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">PHP (Laravel)</span>
+              <span className="px-2.5 py-1 rounded-md text-xs font-mono font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/30">Oracle & MySQL</span>
+              <span className="px-2.5 py-1 rounded-md text-xs font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Docker</span>
+              <span className="px-2.5 py-1 rounded-md text-xs font-mono font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">Jasper Reports</span>
+              <span className="px-2.5 py-1 rounded-md text-xs font-mono font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/30">.NET Core</span>
+              <span className="px-2.5 py-1 rounded-md text-xs font-mono font-semibold bg-teal-500/10 text-teal-400 border border-teal-500/30">Python</span>
+              <span className="px-2.5 py-1 rounded-md text-xs font-mono font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30">Django CMS</span>
+            </div>
 
             {/* Key Verified Credential Chips */}
             <div className="flex flex-wrap gap-2.5 pt-1">
@@ -304,13 +316,14 @@ export const Hero: React.FC<HeroProps> = ({ darkMode, onOpenCvModal, onScrollToS
                         <span className="text-cyan-300">coreStack</span>: [
                       </p>
                       <div className="pl-4 text-cyan-200">
-                        <span className="text-cyan-400">"PHP"</span>,{' '}
-                        <span className="text-cyan-400">"Laravel"</span>,{' '}
-                        <span className="text-cyan-400">"Oracle DB"</span>,{' '}
-                        <span className="text-cyan-400">"MySQL"</span>,{' '}
+                        <span className="text-cyan-400">"PHP (Laravel)"</span>,{' '}
+                        <span className="text-cyan-400">"Oracle & MySQL"</span>,{' '}
                         <span className="text-cyan-400">"Docker"</span>,{' '}
-                        <span className="text-cyan-400">"Vue.js"</span>,{' '}
-                        <span className="text-cyan-400">"Jasper Reports"</span>
+                        <span className="text-cyan-400">"Jasper Reports"</span>,{' '}
+                        <span className="text-cyan-400">".NET Core"</span>,{' '}
+                        <span className="text-cyan-400">"Python"</span>,{' '}
+                        <span className="text-cyan-400">"Django CMS"</span>,{' '}
+                        <span className="text-cyan-400">"Vue.js"</span>
                       </div>
                       <p>],</p>
                       <p>
