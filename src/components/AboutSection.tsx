@@ -64,11 +64,11 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ darkMode, onOpenCred
                     <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                       {PERSONAL_INFO.name}
                     </h3>
-                    <p className="text-xs font-mono text-cyan-400">
-                      Officer • Software Development (Padma Bank PLC)
+                    <p className="text-xs font-mono text-cyan-400 font-semibold">
+                      Officer (Software Development) • Padma Bank PLC
                     </p>
                     <p className={`text-xs mt-0.5 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                      M.Sc. in CSE, Jahangirnagar University • 7.1+ Yrs Experience
+                      M.Sc. in CSE, Jahangirnagar University • 7.2+ Yrs Experience
                     </p>
                   </div>
                 </div>
